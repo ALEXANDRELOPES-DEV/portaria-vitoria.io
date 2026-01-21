@@ -284,7 +284,7 @@ td {
     z-index: 1000;
     box-shadow: 0 10px 30px rgba(0,0,0,0.6);
 
-        /* Regras de visibilidade e animação */
+    /* Regras de visibilidade e animação */
     opacity: 0;
     visibility: hidden;
     transform: translateY(20px);
@@ -296,4 +296,3 @@ td {
     visibility: visible;
     transform: translateY(0);
 }
-
