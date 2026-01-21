@@ -283,4 +283,17 @@ td {
     border-left: 5px solid var(--gold);
     z-index: 1000;
     box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+
+        /* Regras de visibilidade e animação */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
+
+.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
