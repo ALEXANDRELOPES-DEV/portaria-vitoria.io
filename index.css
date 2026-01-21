@@ -1,172 +1,268 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>VITÓRIA — Sistema de Portaria</title>
-  <link rel="stylesheet" href="index.css">
-</head>
-<body>
-    
-  <header>
-    <div style="display: flex; align-items: center; width: 100%;">
-      <div class="brand">
-        <div class="logo">V</div>
-        <div>
-          <div class="title">VITÓRIA IMPORTAÇÃO E EXPORTAÇÃO — Sistema de Portaria</div>
-          <div class="subtitle">Controle de portaria inteligente</div>
-        </div>
-      </div>
-      <button id="btnLogout" class="btn btn-outline" style="margin-left: auto; margin-right: 1.25rem;">Sair</button>
-    </div>
+/* --- VARIÁVEIS E TEMA --- */
+:root {
+    --gold: #D4AF37;
+    --gold-dark: #B38F2C;
+    --gold-light: #F3E5AB;
+    --bg: #0f0f12;
+    --card: #15161a;
+    --text: #f7f7f7;
+    --muted: #bdbdbd;
+    --accent: #2b2f3a;
+    --success: #2ecc71;
+    --danger: #e74c3c;
+    --warning: #f39c12;
+    --shadow: 0 10px 25px rgba(0, 0, 0, .35);
+}
 
-    <nav class="tabs" id="tabs">
-      <button class="tab active" data-tab="registro">Registro de veículos</button>
-      <button class="tab" data-tab="porteiros">Cadastro de porteiros</button>
-      <button class="tab" data-tab="auditoria">Auditoria e relatórios</button>
-    </nav>
-  </header>
+/* --- RESET E BASE --- */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent; /* Remove brilho azul ao tocar no celular */
+}
 
-  <main class="container">
-    <section class="card" data-panel="registro">
-      <div class="card-header">
-        <div class="card-title">Registrar entrada/saída</div>
-        <div class="badge" id="activeGuardBadge">Porteiro: não selecionado</div>
-      </div>
-      <div class="card-body">
-        <div class="grid">
-          <div>
-            <form id="formRecord">
-              <div class="form-row-4">
-                <div>
-                  <label>Nome do visitante/morador</label>
-                  <input type="text" id="name" placeholder="Ex.: João Silva" required />
-                </div>
-                <div>
-                  <label>Placa do veículo</label>
-                  <input type="text" id="plate" placeholder="Ex.: ABC1D23" required />
-                </div>
-                <div>
-                  <label>Hora de entrada</label>
-                  <input type="datetime-local" id="inTime" />
-                </div>
-                <div>
-                  <label>Hora de saída</label>
-                  <input type="datetime-local" id="outTime" />
-                </div>
-              </div>
+html, body {
+    width: 100%;
+    min-height: 100%;
+    overflow-x: hidden;
+    background-color: var(--bg);
+}
 
-              <div class="form-row" style="margin-top:.75rem">
-                <div>
-                  <label>Porteiro responsável</label>
-                  <select id="guardSelect" required></select>
-                </div>
-                <div style="display:flex; align-items:flex-end; gap:.5rem">
-                  <button type="button" class="btn btn-outline" id="btnNowIn" 
-                    onclick="document.getElementById('inTime').value = new Date().toLocaleString('sv-SE').slice(0,16).replace(' ', 'T')">
-                    Entrada agora
-                  </button>
-                  <button type="button" class="btn btn-outline" id="btnNowOut" 
-                    onclick="document.getElementById('outTime').value = new Date().toLocaleString('sv-SE').slice(0,16).replace(' ', 'T')">
-                    Saída agora
-                  </button>
-                </div>
-              </div>
+body {
+    font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background: 
+        radial-gradient(circle at 10% -10%, rgba(212, 175, 55, .15), transparent 50%),
+        linear-gradient(180deg, #0c0c10 0%, #0f0f12 100%);
+    color: var(--text);
+    line-height: 1.4;
+    -webkit-font-smoothing: antialiased;
+}
 
-              <div style="margin-top:1rem; display:flex; gap:.6rem; flex-wrap:wrap">
-                <button type="submit" class="btn btn-primary">Salvar registro</button>
-                <button type="reset" class="btn btn-outline">Limpar</button>
-                <button type="button" class="btn btn-outline" id="btnClearRecords">Limpar Registros</button>
-              </div>
-            </form>
-          </div>
+/* --- TELA DE LOGIN --- */
+.login-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; /* Centralizado melhor no celular */
+    padding: 20px;
+    background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('IMG/FUNDOS/5-FUNDO.jpg') !important;
+    background-size: cover !important;
+    background-position: center !important;
+}
 
-          <div class="card">
-            <div class="card-header">
-              <div class="card-title">Últimos registros</div>
-              <div class="badge" id="countBadge">0 registros</div>
-            </div>
-            <div class="card-body" style="max-height:360px; overflow:auto">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Nome</th><th>Placa</th><th>Entrada</th><th>Saída</th><th>Porteiro</th>
-                  </tr>
-                </thead>
-                <tbody id="recentTable"></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+.background-logo-login {
+    position: relative; /* Mudado de fixed para relative para não quebrar layout */
+    margin-bottom: 2rem;
+    z-index: 1;
+}
 
-    <section class="card" data-panel="porteiros" style="display:none">
-      <div class="card-header">
-        <div class="card-title">Cadastro e gestão de porteiros</div>
-        <div class="badge" id="guardsCount">0 cadastrados</div>
-      </div>
-      <div class="card-body">
-        <div class="grid">
-          <div>
-            <form id="formGuard">
-              <div class="form-row">
-                <div>
-                  <label>Nome do porteiro</label>
-                  <input type="text" id="guardName" placeholder="Ex.: Maria Souza" required />
-                </div>
-                <div>
-                  <label>Matrícula (opcional)</label>
-                  <input type="text" id="guardId" placeholder="Ex.: P-102" />
-                </div>
-              </div>
-              <div style="margin-top:1rem; display:flex; gap:.6rem; flex-wrap:wrap">
-                <button type="submit" class="btn btn-primary">Adicionar porteiro</button>
-              </div>
-            </form>
-          </div>
-          <div class="card">
-            <div class="card-header"><div class="card-title">Lista de porteiros</div></div>
-            <div class="card-body" style="max-height:360px; overflow:auto">
-              <table>
-                <thead>
-                  <tr><th>Nome</th><th>Matrícula</th><th>Status</th><th>Ações</th></tr>
-                </thead>
-                <tbody id="guardsTable"></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+.background-logo-login img {
+    width: 200px; /* Menor para caber melhor */
+    max-width: 60vw;
+    height: auto;
+    filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.4));
+}
 
-    <section class="card" data-panel="auditoria" style="display:none">
-      <div class="card-header"><div class="card-title">Auditoria e Relatórios</div></div>
-      <div class="card-body">
-        <div class="form-row-3">
-          <div><label>Filtrar por Porteiro</label><select id="auditGuardFilter"></select></div>
-          <div><label>Data Início</label><input type="date" id="auditStart" /></div>
-          <div><label>Data Fim</label><input type="date" id="auditEnd" /></div>
-        </div>
-        <div style="margin-top:1rem; display:flex; gap:.6rem">
-          <button class="btn btn-primary" id="btnFilter">Filtrar</button>
-          <button class="btn btn-outline" id="btnExport">Gerar PDF / Imprimir</button>
-        </div>
-        <div class="card" style="margin-top:1rem">
-          <div class="card-body" style="max-height:420px; overflow:auto">
-            <table>
-              <thead>
-                <tr><th>Nome</th><th>Placa</th><th>Entrada</th><th>Saída</th><th>Porteiro</th></tr>
-              </thead>
-              <tbody id="auditTableBody"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
+/* --- CABEÇALHO --- */
+header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(21, 22, 26, .98);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(212, 175, 55, .2);
+}
 
-  <div class="toast" id="toast"></div>
-  <script src="script.js" defer></script>
-</body>
-</html>
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 1rem;
+}
+
+.logo {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+    display: grid;
+    place-items: center;
+    color: #111;
+    font-weight: 800;
+    flex-shrink: 0;
+}
+
+.title {
+    font-weight: 800;
+    font-size: 0.85rem; /* Ajustado para não quebrar linha */
+    text-transform: uppercase;
+    color: var(--gold-light);
+    line-height: 1.1;
+}
+
+/* --- NAVEGAÇÃO (TABS) --- */
+.tabs {
+    display: flex;
+    gap: .5rem;
+    padding: 0.5rem 1rem;
+    overflow-x: auto; 
+    scrollbar-width: none; /* Esconde scroll no Firefox */
+}
+
+.tabs::-webkit-scrollbar { display: none; } /* Esconde scroll no Chrome/Safari */
+
+.tab {
+    padding: .7rem 1.2rem;
+    border: 1px solid rgba(212, 175, 55, .3);
+    color: var(--gold-light);
+    background: rgba(212, 175, 55, .05);
+    border-radius: 12px;
+    white-space: nowrap;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.tab.active {
+    background: var(--gold);
+    color: #000;
+}
+
+/* --- CONTAINER E GRID --- */
+.container {
+    width: 100%;
+    padding: 1rem;
+    margin: 0 auto;
+}
+
+.grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* --- CARDS --- */
+.card {
+    background: var(--card);
+    border: 1px solid rgba(212, 175, 55, .15);
+    border-radius: 16px;
+    width: 100%;
+    padding: 1.2rem;
+    box-shadow: var(--shadow);
+}
+
+.card-header {
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    flex-wrap: wrap; /* Permite quebrar linha no celular */
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+/* --- FORMULÁRIOS --- */
+.form-row, .form-row-4 {
+    display: grid;
+    grid-template-columns: 1fr; /* Coluna única no celular */
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--gold-light);
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+input, select {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(212, 175, 55, .3);
+    background: #000;
+    color: #fff;
+    font-size: 16px !important; /* Importante para não dar zoom automático no iPhone/Motorola */
+}
+
+/* --- BOTÕES --- */
+.button-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Lado a lado */
+    gap: 10px;
+    margin: 1rem 0;
+}
+
+.btn {
+    width: 100%;
+    padding: 16px;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+}
+
+.btn-primary { background: var(--gold); color: #000; }
+.btn-outline { background: transparent; border: 1px solid #444; color: #fff; }
+
+/* Especial para o botão salvar ocupar a largura toda */
+button[type="submit"] {
+    margin-top: 0.5rem;
+}
+
+/* --- TABELAS RESPONSIVAS --- */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    background: rgba(0,0,0,0.2);
+    border-radius: 12px;
+    -webkit-overflow-scrolling: touch;
+}
+
+table {
+    width: 100%;
+    min-width: 600px; /* Garante que os dados tenham espaço para respirar */
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 14px 10px;
+    font-size: 0.85rem;
+    text-align: left;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+/* --- AJUSTES PARA TELAS GRANDES (PC) --- */
+@media (min-width: 1024px) {
+    .grid { flex-direction: row; align-items: flex-start; }
+    .grid > div { flex: 1; }
+    .form-row-4 { grid-template-columns: 1fr 1fr; } /* No PC fica 2x2 */
+    .title { font-size: 1.1rem; }
+}
+
+/* --- TOAST --- */
+.toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 1rem;
+    right: 1rem;
+    background: #1a1b20;
+    padding: 1.2rem;
+    border-radius: 15px;
+    border-left: 6px solid var(--gold);
+    z-index: 2000;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.8);
+    display: none; /* Controlado pelo JS */
+}
+
+.toast.show { display: block; animation: slideUp 0.3s ease; }
+
+@keyframes slideUp {
+    from { transform: translateY(100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
