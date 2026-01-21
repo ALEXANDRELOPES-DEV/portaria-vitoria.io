@@ -1,0 +1,290 @@
+/* --- VARIÁVEIS E TEMA --- */
+:root {
+    --gold: #D4AF37;
+    --gold-dark: #B38F2C;
+    --gold-light: #F3E5AB;
+    --bg: #0f0f12;
+    --card: #15161a;
+    --text: #f7f7f7;
+    --muted: #bdbdbd;
+    --accent: #2b2f3a;
+    --success: #2ecc71;
+    --danger: #e74c3c;
+    --warning: #f39c12;
+    --shadow: 0 10px 25px rgba(0, 0, 0, .35);
+}
+
+/* --- RESET E BASE --- */
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background: 
+        radial-gradient(1200px 600px at 10% -10%, rgba(212, 175, 55, .15), transparent 60%),
+        radial-gradient(900px 500px at 110% 10%, rgba(212, 175, 55, .12), transparent 60%),
+        linear-gradient(180deg, #0c0c10 0%, #0f0f12 100%);
+    color: var(--text);
+    line-height: 1.5;
+}
+
+/* --- CABEÇALHO E NAVEGAÇÃO --- */
+header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: rgba(21, 22, 26, .85);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(212, 175, 55, .25);
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: .8rem;
+    padding: 1rem 1.25rem;
+}
+
+.logo {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+    box-shadow: 0 0 0 2px rgba(212, 175, 55, .35), 0 8px 18px rgba(212, 175, 55, .25);
+    display: grid;
+    place-items: center;
+    color: #111;
+    font-weight: 800;
+    flex-shrink: 0;
+}
+
+.title {
+    font-weight: 800;
+    letter-spacing: .8px;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+}
+
+.subtitle {
+    color: var(--muted);
+    font-size: .75rem;
+}
+
+/* --- TABS (ABAS) --- */
+.tabs {
+    display: flex;
+    gap: .5rem;
+    padding: 0 1.25rem 1rem;
+    flex-wrap: wrap;
+}
+
+.tab {
+    padding: .6rem 1rem;
+    border: 1px solid rgba(212, 175, 55, .35);
+    color: var(--gold-light);
+    background: rgba(212, 175, 55, .08);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: .2s;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.tab:hover {
+    background: rgba(212, 175, 55, .14);
+}
+
+.tab.active {
+    background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+    color: #111;
+    border-color: transparent;
+    box-shadow: var(--shadow);
+}
+
+/* --- LAYOUT E GRID --- */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.5rem 1.25rem;
+}
+
+.grid {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: 1.2fr 0.8fr;
+}
+
+@media (max-width: 1100px) {
+    .grid { grid-template-columns: 1fr; }
+}
+
+/* --- CARDS --- */
+.card {
+    background: var(--card);
+    border: 1px solid rgba(212, 175, 55, .18);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+.card-header {
+    padding: 1rem 1.25rem;
+    background: linear-gradient(180deg, rgba(212, 175, 55, .12), rgba(212, 175, 55, .06));
+    border-bottom: 1px solid rgba(212, 175, 55, .18);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.card-title {
+    font-weight: 700;
+    letter-spacing: .5px;
+    color: var(--gold-light);
+}
+
+.card-body {
+    padding: 1.25rem;
+}
+
+/* --- FORMULÁRIOS (Atualizado: Itens um embaixo do outro) --- */
+.form-row, .form-row-3, .form-row-4 {
+    display: flex;
+    flex-direction: column; /* Força os campos a empilharem verticalmente */
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+label {
+    font-size: .85rem;
+    color: var(--gold-light);
+    margin-bottom: .4rem;
+    display: block;
+    font-weight: 600;
+}
+
+input, select {
+    width: 100%;
+    padding: .85rem 1rem;
+    border-radius: 10px;
+    border: 1px solid rgba(212, 175, 55, .25);
+    background: #0a0b0d;
+    color: var(--text);
+    outline: none;
+    transition: all .2s;
+    font-size: 1rem;
+}
+
+input:focus, select:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, .15);
+}
+
+/* --- BOTÕES --- */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    padding: .75rem 1.25rem;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    font-weight: 700;
+    transition: .2s;
+    font-size: 0.9rem;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+    color: #111;
+    box-shadow: 0 5px 15px rgba(212, 175, 55, .2);
+}
+
+.btn-primary:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+}
+
+.btn-outline {
+    background: transparent;
+    color: var(--gold-light);
+    border: 1px solid rgba(212, 175, 55, .3);
+}
+
+.btn-outline:hover {
+    background: rgba(212, 175, 55, .1);
+    border-color: var(--gold);
+}
+
+/* --- TABELAS (Atualizado: Sem cortes e ajuste automático) --- */
+.card-body[style*="overflow:auto"], 
+.card-body[style*="overflow: auto"] {
+    overflow-x: auto !important; /* Garante que a barra apareça apenas se necessário */
+    scrollbar-width: thin;
+    scrollbar-color: var(--gold) transparent;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: auto; /* Permite que as colunas se ajustem ao texto */
+}
+
+th {
+    text-align: left;
+    padding: 1rem .8rem;
+    font-size: .8rem;
+    color: #111;
+    background: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap; /* Impede que o título quebre linha */
+}
+
+td {
+    padding: .85rem .8rem;
+    border-bottom: 1px solid rgba(212, 55, 55, 0.1);
+    font-size: .9rem;
+    white-space: nowrap; /* Garante que o nome e porteiro apareçam inteiros */
+    color: var(--text);
+}
+
+tbody tr:hover {
+    background: rgba(212, 175, 55, .05);
+}
+
+/* --- COMPONENTES EXTRAS --- */
+.badge {
+    padding: .3rem .6rem;
+    border-radius: 6px;
+    font-size: .75rem;
+    font-weight: 700;
+    background: rgba(245, 248, 243, 0.15);
+    color: var(--gold-light);
+    border: 1px solid rgba(212, 175, 55, .3);
+}
+
+.toast {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: #1a1b20;
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    border-left: 4px solid var(--gold);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+    transform: translateY(150%);
+    transition: transform .3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 1000;
+}
+
+.toast.show {
+    transform: translateY(0);
+}

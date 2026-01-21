@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VITÓRIA — Sistema de Portaria</title>
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    
+  <header>
+    <div style="display: flex; align-items: center; width: 100%;">
+      <div class="brand">
+        <div class="logo">V</div>
+        <div>
+          <div class="title">VITÓRIA IMPORTAÇÃO E  EXPORTAÇÃO — Sistema de Portaria</div>
+          <div class="subtitle">Controle de portaria inteligente</div>
+        </div>
+      </div>
+      <button id="btnLogout" class="btn btn-outline" style="margin-left: auto; margin-right: 1.25rem;">Sair</button>
+    </div>
+
+    <nav class="tabs" id="tabs">
+      <button class="tab active" data-tab="registro">Registro de veículos</button>
+      <button class="tab" data-tab="porteiros">Cadastro de porteiros</button>
+      <button class="tab" data-tab="auditoria">Auditoria e relatórios</button>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="card" data-panel="registro">
+      <div class="card-header">
+        <div class="card-title">Registrar entrada/saída</div>
+        <div class="badge" id="activeGuardBadge">Porteiro: não selecionado</div>
+      </div>
+      <div class="card-body">
+        <div class="grid">
+          <div>
+            <form id="formRecord">
+              <div class="form-row-4">
+                <div>
+                  <label>Nome do visitante/morador</label>
+                  <input type="text" id="name" placeholder="Ex.: João Silva" required />
+                </div>
+                <div>
+                  <label>Placa do veículo</label>
+                  <input type="text" id="plate" placeholder="Ex.: ABC1D23" required />
+                </div>
+                <div>
+                  <label>Hora de entrada</label>
+                  <input type="datetime-local" id="inTime" />
+                </div>
+                <div>
+                  <label>Hora de saída</label>
+                  <input type="datetime-local" id="outTime" />
+                </div>
+              </div>
+
+              <div class="form-row" style="margin-top:.75rem">
+                <div>
+                  <label>Porteiro responsável</label>
+                  <select id="guardSelect" required></select>
+                </div>
+                <div style="display:flex; align-items:flex-end; gap:.5rem">
+                  <button type="button" class="btn btn-outline" id="btnNowIn" onclick="document.getElementById('inTime').value = new Date().toISOString().slice(0,16)">Entrada agora</button>
+                  <button type="button" class="btn btn-outline" id="btnNowOut" onclick="document.getElementById('outTime').value = new Date().toISOString().slice(0,16)">Saída agora</button>
+                </div>
+              </div>
+
+              <div style="margin-top:1rem; display:flex; gap:.6rem; flex-wrap:wrap">
+                <button type="submit" class="btn btn-primary">Salvar registro</button>
+                <button type="reset" class="btn btn-outline">Limpar</button>
+                <button type="button" class="btn btn-outline" id="btnClearRecords">Limpar Registros</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Últimos registros</div>
+              <div class="badge" id="countBadge">0 registros</div>
+            </div>
+            <div class="card-body" style="max-height:360px; overflow:auto">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Nome</th><th>Placa</th><th>Entrada</th><th>Saída</th><th>Porteiro</th>
+                  </tr>
+                </thead>
+                <tbody id="recentTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" data-panel="porteiros" style="display:none">
+      <div class="card-header">
+        <div class="card-title">Cadastro e gestão de porteiros</div>
+        <div class="badge" id="guardsCount">0 cadastrados</div>
+      </div>
+      <div class="card-body">
+        <div class="grid">
+          <div>
+            <form id="formGuard">
+              <div class="form-row">
+                <div>
+                  <label>Nome do porteiro</label>
+                  <input type="text" id="guardName" placeholder="Ex.: Maria Souza" required />
+                </div>
+                <div>
+                  <label>Matrícula (opcional)</label>
+                  <input type="text" id="guardId" placeholder="Ex.: P-102" />
+                </div>
+              </div>
+              <div style="margin-top:1rem; display:flex; gap:.6rem; flex-wrap:wrap">
+                <button type="submit" class="btn btn-primary">Adicionar porteiro</button>
+              </div>
+            </form>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Lista de porteiros</div></div>
+            <div class="card-body" style="max-height:360px; overflow:auto">
+              <table>
+                <thead>
+                  <tr><th>Nome</th><th>Matrícula</th><th>Status</th><th>Ações</th></tr>
+                </thead>
+                <tbody id="guardsTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" data-panel="auditoria" style="display:none">
+      <div class="card-header"><div class="card-title">Auditoria e Relatórios</div></div>
+      <div class="card-body">
+        <div class="form-row-3">
+          <div><label>Filtrar por Porteiro</label><select id="auditGuardFilter"></select></div>
+          <div><label>Data Início</label><input type="date" id="auditStart" /></div>
+          <div><label>Data Fim</label><input type="date" id="auditEnd" /></div>
+        </div>
+        <div style="margin-top:1rem; display:flex; gap:.6rem">
+          <button class="btn btn-primary" id="btnFilter">Filtrar</button>
+          <button class="btn btn-outline" id="btnExport">Gerar PDF / Imprimir</button>
+        </div>
+        <div class="card" style="margin-top:1rem">
+          <div class="card-body" style="max-height:420px; overflow:auto">
+            <table>
+              <thead>
+                <tr><th>Nome</th><th>Placa</th><th>Entrada</th><th>Saída</th><th>Porteiro</th></tr>
+              </thead>
+              <tbody id="auditTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast"></div>
+  <script src="script.js" defer></script>
+</body>
+</html>
