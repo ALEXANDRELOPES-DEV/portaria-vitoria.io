@@ -10,13 +10,10 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      /* Alinha o conteúdo ao final (em baixo) para liberar espaço para a logo */
       justify-content: flex-end; 
       height: 100vh;
       margin: 0;
-      padding-bottom: 50px; /* Distância do card para o fim da tela */
-      
-      /* PAPEL DE PAREDE APLICADO DIRETAMENTE AQUI */
+      padding-bottom: 50px;
       background-image: url('IMG/FUNDOS/5-FUNDO.jpg');
       background-size: cover;
       background-position: center center;
@@ -24,10 +21,9 @@
       background-attachment: fixed;
     }
 
-    /* POSICIONAMENTO DA LOGO NO FUNDO */
     .background-logo-login {
       position: fixed;
-      top: 25%; /* Ajuste aqui para subir ou descer a logo */
+      top: 25%;
       left: 50%;
       transform: translate(-50%, -50%);
       z-index: 0;
@@ -45,7 +41,6 @@
       width: 100%;
       max-width: 400px;
       padding: 2rem;
-      /* Background levemente translúcido para ver o papel de parede atrás */
       background-color: rgba(21, 22, 26, 0.95); 
       border-radius: 16px;
       border: 1px solid rgba(212, 175, 55, 0.3);
@@ -54,9 +49,6 @@
   </style>
 </head>
 <body>
-
-
-
   <div class="card login-card">
     <div class="brand" style="display: flex; align-items: center; gap: 10px; justify-content: center; padding: 0 0 1.5rem 0;">
         <div class="logo">V</div>
@@ -78,31 +70,47 @@
         Entrar no Sistema
       </button>
       
-      <p id="mensagem" style="color: var(--danger); font-size: 0.85rem; margin-top: 1rem; text-align: center; min-height: 20px;"></p>
+      <p id="mensagem" style="color: #ff4d4d; font-size: 0.85rem; margin-top: 1rem; text-align: center; min-height: 20px;"></p>
     </form>
   </div>
 
   <script>
-    // Lista de usuários corrigida
+    // LISTA DE USUÁRIOS ATUALIZADA
     const usuarios = { 
-      "julio": "1234", 
-      "barbosa": "1234", 
-      "marcos": "1234", 
-      "alexandre": "1985" 
+      "admin": { pass: "1985", id: "admin" }, // LOGIN DE ADMINISTRADOR
+      "julio": { pass: "1234", id: "porteiro_julio" }, 
+      "barbosa": { pass: "1234", id: "porteiro_barbosa" }, 
+      "marcos": { pass: "1234", id: "porteiro_marcos" }, 
+      "alexandre": { pass: "1985", id: "porteiro_alexandre" } 
     };
 
     document.getElementById('loginForm').addEventListener('submit', function(e) {
       e.preventDefault();
-      const user = document.getElementById("usuario").value.toLowerCase(); // Facilita o login
-      const pass = document.getElementById("senha").value;
+      const userInput = document.getElementById("usuario").value.toLowerCase().trim();
+      const passInput = document.getElementById("senha").value;
+      const msg = document.getElementById("mensagem");
 
-      if (usuarios[user] && usuarios[user] === pass) {
+      if (usuarios[userInput] && usuarios[userInput].pass === passInput) {
+        // 1. Define o status de logado
         localStorage.setItem('vitoria_logado', 'true');
+        
+        // 2. Salva o ID do porteiro (essencial para o script.js identificar se é admin ou não)
+        localStorage.setItem('vitoria_active_guard', usuarios[userInput].id);
+        
+        // Redireciona
         window.location.href = "index.html";
       } else {
-        document.getElementById("mensagem").innerText = "Usuário ou senha inválidos.";
+        msg.innerText = "Usuário ou senha inválidos.";
+        // Limpa a senha após erro
+        document.getElementById("senha").value = "";
       }
     });
+
+    // Limpa estados antigos ao carregar a página de login para evitar conflitos
+    window.onload = () => {
+        localStorage.removeItem('vitoria_logado');
+        localStorage.removeItem('vitoria_active_guard');
+    };
   </script>
 </body>
 </html>
