@@ -242,6 +242,21 @@ input, select {
     animation: pulse-effect 0.4s ease-out;
 }
 
+/* Configuração para Celulares (Telas até 768px) */
+@media (max-width: 768px) {
+    .login-card {
+        width: 90%;          /* O card ocupa quase toda a largura */
+        padding: 1.5rem;     /* Diminui o espaço interno */
+    }
+
+    .button-row {
+        grid-template-columns: 1fr; /* Os botões ficam um embaixo do outro em vez de lado a lado */
+    }
+
+    .background-logo-login img {
+        width: 200px;        /* Diminui a logo no celular */
+    }
+}
 @keyframes pulse-effect {
     0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.7); }
     70% { box-shadow: 0 0 0 15px rgba(212, 175, 55, 0); }
@@ -313,3 +328,4 @@ td {
     visibility: visible;
     transform: translateY(0);
 }
+
