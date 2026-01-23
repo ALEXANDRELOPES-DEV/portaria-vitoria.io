@@ -13,7 +13,6 @@
       <div class="brand">
         <div class="logo">V</div>
         <div>
-          <div class="title">VITÓRIA IMPORTAÇÃO E EXPORTAÇÃO — Sistema de Portaria</div>
           <div class="subtitle">Controle de portaria inteligente</div>
         </div>
       </div>
@@ -31,7 +30,7 @@
     <section class="card" data-panel="registro">
       <div class="card-header">
         <div class="card-title">Registrar entrada/saída</div>
-        <div class="badge" id="activeGuardBadge">Porteiro: não selecionado</div>
+        <div class="badge" id="activeGuardBadge">Porteiro: carregando...</div>
       </div>
       <div class="card-body">
         <div class="grid">
@@ -57,9 +56,9 @@
               </div>
 
               <div class="form-row" style="margin-top:.75rem">
-                <div>
-                  <label>Porteiro responsável</label>
-                  <select id="guardSelect" required></select>
+                <div style="flex: 1;">
+                  <label>Categorizar Entrada</label>
+                  <select id="serviceType" required style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #444; background: #000; color: #fff;"></select>
                 </div>
                 <div style="display:flex; align-items:flex-end; gap:.5rem">
                   <button type="button" class="btn btn-outline" id="btnNowIn" 
@@ -75,26 +74,27 @@
 
               <div style="margin-top:1rem; display:flex; gap:.6rem; flex-wrap:wrap">
                 <button type="submit" class="btn btn-primary">Salvar registro</button>
-                <button type="reset" class="btn btn-outline">Limpar</button>
-                <button type="button" class="btn btn-outline" id="btnClearRecords">Limpar Registros</button>
+                <button type="reset" class="btn btn-outline">Limpar campos</button>
+                <button type="button" class="btn btn-outline" id="btnClearRecords" style="border-color: #e74c3c; color: #e74c3c;">Apagar Banco de Dados</button>
               </div>
             </form>
           </div>
 
           <div class="card">
             <div class="card-header">
-              <div class="card-title">Últimos registros</div>
+              <div class="card-title">Últimos 10 registros</div>
               <div class="badge" id="countBadge">0 registros</div>
             </div>
             <div class="card-body" style="max-height:360px; overflow:auto">
               <table>
                 <thead>
                   <tr>
-                    <th>Nome</th><th>Placa</th><th>Entrada</th><th>Saída</th><th>Porteiro</th>
+                    <th>Nome</th><th>Placa</th><th>Entrada</th><th>Saída</th><th>Serviço</th>
                   </tr>
                 </thead>
                 <tbody id="recentTable"></tbody>
               </table>
+              <p style="font-size: 0.8rem; color: #888; text-align: center; margin-top: 10px;">Dica: Clique em uma linha para editar.</p>
             </div>
           </div>
         </div>
@@ -103,8 +103,8 @@
 
     <section class="card" data-panel="porteiros" style="display:none">
       <div class="card-header">
-        <div class="card-title">Cadastro e gestão de porteiros</div>
-        <div class="badge" id="guardsCount">0 cadastrados</div>
+        <div class="card-title">Gestão de Equipe</div>
+        <div class="badge" id="guardsCount">Equipe ativa</div>
       </div>
       <div class="card-body">
         <div class="grid">
@@ -112,25 +112,25 @@
             <form id="formGuard">
               <div class="form-row">
                 <div>
-                  <label>Nome do porteiro</label>
+                  <label>Nome do novo porteiro</label>
                   <input type="text" id="guardName" placeholder="Ex.: Maria Souza" required />
                 </div>
                 <div>
-                  <label>Matrícula (opcional)</label>
-                  <input type="text" id="guardId" placeholder="Ex.: P-102" />
+                  <label>Login de Acesso</label>
+                  <input type="text" id="guardId" placeholder="Ex.: maria_souza" required />
                 </div>
               </div>
               <div style="margin-top:1rem; display:flex; gap:.6rem; flex-wrap:wrap">
-                <button type="submit" class="btn btn-primary">Adicionar porteiro</button>
+                <button type="submit" class="btn btn-primary">Cadastrar na Base</button>
               </div>
             </form>
           </div>
           <div class="card">
-            <div class="card-header"><div class="card-title">Lista de porteiros</div></div>
+            <div class="card-header"><div class="card-title">Porteiros Cadastrados</div></div>
             <div class="card-body" style="max-height:360px; overflow:auto">
               <table>
                 <thead>
-                  <tr><th>Nome</th><th>Matrícula</th><th>Status</th><th>Ações</th></tr>
+                  <tr><th>Nome</th><th>Login</th><th>Status</th><th>Ação</th></tr>
                 </thead>
                 <tbody id="guardsTable"></tbody>
               </table>
@@ -141,22 +141,22 @@
     </section>
 
     <section class="card" data-panel="auditoria" style="display:none">
-      <div class="card-header"><div class="card-title">Auditoria e Relatórios</div></div>
+      <div class="card-header"><div class="card-title">Relatórios e Filtros</div></div>
       <div class="card-body">
         <div class="form-row-3">
-          <div><label>Filtrar por Porteiro</label><select id="auditGuardFilter"></select></div>
+          <div><label>Filtrar por Serviço</label><select id="auditServiceFilter"></select></div>
           <div><label>Data Início</label><input type="date" id="auditStart" /></div>
           <div><label>Data Fim</label><input type="date" id="auditEnd" /></div>
         </div>
         <div style="margin-top:1rem; display:flex; gap:.6rem">
-          <button class="btn btn-primary" id="btnFilter">Filtrar</button>
-          <button class="btn btn-outline" id="btnExport">Gerar PDF / Imprimir</button>
+          <button class="btn btn-primary" id="btnFilter">Aplicar Filtros</button>
+          <button class="btn btn-outline" id="btnExport">Imprimir Relatório</button>
         </div>
         <div class="card" style="margin-top:1rem">
           <div class="card-body" style="max-height:420px; overflow:auto">
             <table>
               <thead>
-                <tr><th>Nome</th><th>Placa</th><th>Entrada</th><th>Saída</th><th>Porteiro</th></tr>
+                <tr><th>Nome</th><th>Placa</th><th>Entrada</th><th>Saída</th><th>Serviço</th><th>Porteiro</th></tr>
               </thead>
               <tbody id="auditTableBody"></tbody>
             </table>
