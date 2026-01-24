@@ -105,31 +105,33 @@
       </div>
     </section>
 
-    <section class="card" data-panel="autorizados" style="display:none">
-      <div class="card-header">
-        <div class="card-title">Veículos Autorizados (Fixos)</div>
-        <div class="badge" id="authCountBadge">0 cadastrados</div>
-      </div>
-      <div class="card-body">
-        <div class="search-box" style="margin-bottom: 1rem;">
-          <label>Buscar na lista de autorizados</label>
-          <input type="text" id="authSearch" placeholder="Digite nome ou placa para buscar..." onkeyup="filterAuthorizedTable()" />
-        </div>
-        <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
-          <table>
-            <thead>
-              <tr>
-                <th>Nome</th>
-                <th>Placa</th>
-                <th>Modelo</th> <th>Vínculo</th>
-                <th>Ação</th>
-              </tr>
-            </thead>
-            <tbody id="authorizedTableBody"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
+<section class="card" data-panel="autorizados" style="display:none">
+  <div class="card-header">
+    <div class="card-title">Veículos Autorizados (Fixos)</div>
+    <div class="badge" id="authCountBadge">0 cadastrados</div>
+  </div>
+  <div class="card-body">
+    <div class="search-box" style="margin-bottom: 1rem;">
+      <label>Buscar na lista de autorizados</label>
+      <input type="text" id="authSearch" placeholder="Digite nome ou placa para buscar..." onkeyup="filterAuthorizedTable()" />
+    </div>
+    <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Placa</th>
+            <th>Modelo</th>
+            <th>Serviço Padrão</th> 
+            <th>Vínculo</th>
+            <th>Ação</th>
+          </tr>
+        </thead>
+        <tbody id="authorizedTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
 
     <section class="card" data-panel="porteiros" style="display:none">
       <div class="card-header"><div class="card-title">Gestão de Equipe</div></div>
