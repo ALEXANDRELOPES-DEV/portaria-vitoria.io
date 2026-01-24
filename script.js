@@ -118,6 +118,32 @@ function renderServiceSelect() {
     if($('#activeGuardBadge')) $('#activeGuardBadge').textContent = `Conectado: ${current ? current.name : 'Sistema'}`;
 }
 
+// --- FUNÇÃO DE AUTO-PREENCHIMENTO (PLACA RECONHECIDA) ---
+function setupAutocomplete() {
+    const plateInput = $('#plate');
+    const nameInput = $('#name');
+    const serviceSelect = $('#serviceType');
+
+    if (!plateInput) return;
+
+    plateInput.addEventListener('input', (e) => {
+        const val = e.target.value.toUpperCase().replace('-', '').trim();
+        
+        if (val.length >= 7) {
+            const found = authorizedVehicles.find(v => v.plate.replace('-', '').toUpperCase() === val);
+            
+            if (found) {
+                nameInput.value = found.name;
+                serviceSelect.value = found.service || "";
+                toast(`Bem-vindo, ${found.name} (${found.type})`);
+                plateInput.style.border = "2px solid #2ecc71";
+            }
+        } else {
+            plateInput.style.border = "";
+        }
+    });
+}
+
 // --- GESTÃO DE REGISTROS (ENTRADA/SAÍDA) ---
 if ($('#formRecord')) {
     $('#formRecord').addEventListener('submit', (e) => {
@@ -145,6 +171,7 @@ if ($('#formRecord')) {
         renderRecent(); 
         e.target.reset();
         renderServiceSelect();
+        $('#plate').style.border = "";
     });
 }
 
@@ -175,7 +202,7 @@ function renderRecent() {
                 <td style="color: #d4af37; font-size: 0.8rem;">${r.service || '—'}</td>
                 <td style="text-align:center">
                     <button class="btn" style="background:#2ecc71; color:white; padding:4px 8px; font-size:10px; border:none; border-radius:4px; cursor:pointer; width:auto;" 
-                        onclick="quickAuthorize('${r.name}', '${r.plate}')">+ FIXO</button>
+                        onclick="quickAuthorize('${r.id}')">+ FIXO</button>
                 </td>
             </tr>`;
     });
@@ -184,23 +211,27 @@ function renderRecent() {
 
 // --- VEÍCULOS AUTORIZADOS ---
 
-// Adicionar novo autorizado
-window.quickAuthorize = (name, plate) => {
-    const modelo = prompt(`Qual o modelo do veículo (${plate})?`, "Não informado");
+window.quickAuthorize = (recordId) => {
+    const rec = records.find(r => r.id === recordId);
+    if (!rec) return toast("Erro ao localizar registro.");
+
+    if (authorizedVehicles.find(v => v.plate === rec.plate)) {
+        return toast("Veículo já está nos autorizados!");
+    }
+
+    // Pede apenas o modelo, pois nome, placa e serviço já vêm do registro
+    const modelo = prompt(`Qual o modelo do veículo (${rec.plate})?`, "Não informado");
     if (modelo === null) return; 
 
-    const isFunc = confirm(`Deseja autorizar "${name}" como FUNCIONÁRIO?\n(Clique em Cancelar para Visitante Fixo)`);
+    const isFunc = confirm(`Deseja autorizar "${rec.name}" como FUNCIONÁRIO?\n(Clique em Cancelar para Visitante Fixo)`);
     const type = isFunc ? "Funcionário" : "Visitante Fixo";
-
-    if (authorizedVehicles.find(v => v.plate === plate)) {
-        return toast("Veículo já está na lista!");
-    }
 
     authorizedVehicles.push({
         id: crypto.randomUUID(),
-        name: name.toUpperCase(),
-        plate: plate.toUpperCase(),
+        name: rec.name.toUpperCase(),
+        plate: rec.plate.toUpperCase(),
         modelo: modelo.toUpperCase(),
+        service: rec.service || "Não informado", // Já preenchido do registro inicial
         type: type
     });
 
@@ -209,31 +240,27 @@ window.quickAuthorize = (name, plate) => {
     renderAuthorizedTable();
 };
 
-// Editar autorizado existente
 window.editAuthorized = (id) => {
     const v = authorizedVehicles.find(item => item.id === id);
     if (!v) return;
 
-    const novoNome = prompt("Editar Nome do Proprietário:", v.name);
+    const novoNome = prompt("Editar Nome:", v.name);
     if (novoNome === null) return;
-
     const novaPlaca = prompt("Editar Placa:", v.plate);
     if (novaPlaca === null) return;
-
-    const novoModelo = prompt("Editar Modelo do Veículo:", v.modelo || "");
+    const novoModelo = prompt("Editar Modelo:", v.modelo || "");
     if (novoModelo === null) return;
-
-    const novoTipo = confirm(`Definir como FUNCIONÁRIO?\n(OK = Funcionário | Cancelar = Visitante Fixo)`) 
-                     ? "Funcionário" : "Visitante Fixo";
+    const novoServico = prompt("Editar Serviço Padrão:", v.service || "");
+    if (novoServico === null) return;
 
     v.name = novoNome.toUpperCase();
     v.plate = novaPlaca.toUpperCase();
     v.modelo = novoModelo.toUpperCase();
-    v.type = novoTipo;
+    v.service = novoServico;
 
     store.set('vitoria_authorized', authorizedVehicles);
     renderAuthorizedTable();
-    toast("Cadastro atualizado!");
+    toast("Atualizado!");
 };
 
 function renderAuthorizedTable(filterText = '') {
@@ -245,43 +272,37 @@ function renderAuthorizedTable(filterText = '') {
         v.plate.toLowerCase().includes(filterText.toLowerCase())
     );
 
-    tbody.innerHTML = filtered.length === 0 ? '<tr><td colspan="5" style="text-align:center">Nenhum veículo fixo cadastrado</td></tr>' : '';
+    tbody.innerHTML = filtered.length === 0 ? '<tr><td colspan="6" style="text-align:center">Nenhum veículo fixo</td></tr>' : '';
     
     filtered.forEach(v => {
         tbody.innerHTML += `
             <tr>
-                <td onclick="editAuthorized('${v.id}')" style="cursor:pointer; color:var(--gold-light);" title="Clique para editar">
-                    ${v.name} ✏️
-                </td>
-                <td onclick="editAuthorized('${v.id}')" style="cursor:pointer;" title="Clique para editar">
-                    ${v.plate}
-                </td>
+                <td onclick="editAuthorized('${v.id}')" style="cursor:pointer; color:var(--gold-light);">${v.name} ✏️</td>
+                <td onclick="editAuthorized('${v.id}')" style="cursor:pointer;">${v.plate}</td>
                 <td style="color: #d4af37;">${v.modelo || '—'}</td>
+                <td style="font-size: 0.8rem;">${v.service || '—'}</td>
                 <td><span class="badge" style="background:rgba(212,175,55,0.1)">${v.type}</span></td>
                 <td>
-                    <button class="btn" style="background:transparent; color:#e74c3c; border:1px solid #e74c3c; padding:4px 8px; font-size:10px; border-radius:4px; cursor:pointer; width:auto;" 
-                        onclick="removeAuthorized('${v.id}')">Excluir</button>
+                    <button class="btn" style="color:#e74c3c; background:none; border:1px solid #e74c3c; width:auto;" onclick="removeAuthorized('${v.id}')">Excluir</button>
                 </td>
             </tr>`;
     });
-    if($('#authCountBadge')) $('#authCountBadge').textContent = `${authorizedVehicles.length} cadastrados`;
 }
 
 window.filterAuthorizedTable = () => {
-    const val = $('#authSearch').value;
-    renderAuthorizedTable(val);
+    renderAuthorizedTable($('#authSearch').value);
 };
 
 window.removeAuthorized = (id) => {
-    if(confirm("Remover este veículo da lista de autorizados?")) {
+    if(confirm("Remover dos autorizados?")) {
         authorizedVehicles = authorizedVehicles.filter(v => v.id !== id);
         store.set('vitoria_authorized', authorizedVehicles);
         renderAuthorizedTable();
-        toast("Removido com sucesso.");
+        toast("Removido.");
     }
 };
 
-// --- AUDITORIA E FILTROS ---
+// --- AUDITORIA, IMPRESSÃO E EQUIPE ---
 function filtrarAuditoria() {
     const fServico = $('#auditServiceFilter')?.value;
     const fInicio = $('#auditStart')?.value; 
@@ -297,127 +318,43 @@ function filtrarAuditoria() {
 function renderTabelaAuditoria(dados) {
     const tbody = $('#auditTableBody'); 
     if (!tbody) return;
-    tbody.innerHTML = dados.length === 0 ? '<tr><td colspan="6" style="text-align:center">Nenhum registro encontrado</td></tr>' : '';
+    tbody.innerHTML = dados.length === 0 ? '<tr><td colspan="6" style="text-align:center">Sem resultados</td></tr>' : '';
     dados.forEach(r => {
-        const gName = guards.find(g => g.id === r.guardId)?.name || 'Removido';
-        tbody.innerHTML += `
-            <tr>
-                <td>${r.name}</td><td>${r.plate}</td>
-                <td>${fmtDateTime(r.inTime)}</td><td>${fmtDateTime(r.outTime)}</td>
-                <td>${r.service || '—'}</td><td>${gName}</td>
-            </tr>`;
+        const gName = guards.find(g => g.id === r.guardId)?.name || 'N/A';
+        tbody.innerHTML += `<tr><td>${r.name}</td><td>${r.plate}</td><td>${fmtDateTime(r.inTime)}</td><td>${fmtDateTime(r.outTime)}</td><td>${r.service}</td><td>${gName}</td></tr>`;
     });
 }
 
-// --- IMPRESSÃO ---
 function imprimirRelatorio() {
     const tabelaHTML = $('#auditTableBody').innerHTML;
-    if (!tabelaHTML || tabelaHTML.includes('Nenhum registro encontrado')) {
-        return toast("Filtre os dados antes de imprimir!");
-    }
-
+    if (!tabelaHTML || tabelaHTML.includes('Sem resultados')) return toast("Filtre os dados primeiro!");
     const win = window.open('', '', 'height=700,width=900');
-    win.document.write(`
-        <html><head><title>Relatório VITÓRIA</title>
-        <style>
-            body { font-family: sans-serif; color: #000; padding: 20px; }
-            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-            th, td { border: 1px solid #000; padding: 8px; text-align: left; font-size: 12px; }
-            h2 { text-align: center; }
-        </style></head>
-        <body>
-            <h2>VITÓRIA — RELATÓRIO DE PORTARIA</h2>
-            <p>Extraído em: ${new Date().toLocaleString()}</p>
-            <table>
-                <thead><tr><th>Nome</th><th>Placa</th><th>Entrada</th><th>Saída</th><th>Serviço</th><th>Porteiro</th></tr></thead>
-                <tbody>${tabelaHTML}</tbody>
-            </table>
-        </body></html>
-    `);
+    win.document.write(`<html><head><style>table{width:100%;border-collapse:collapse;} th,td{border:1px solid #000;padding:8px;text-align:left;}</style></head><body><h2>Relatório Vitória</h2><table>${tabelaHTML}</table></body></html>`);
     win.document.close();
     win.print();
 }
-
-// --- EQUIPE ---
-if ($('#formGuard')) {
-    $('#formGuard').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const id = $('#guardId').value.trim();
-        const name = $('#guardName').value.trim();
-        if (guards.find(g => g.id === id)) return toast("ID já existe!");
-        
-        const ng = { id, name };
-        savedGuards.push(ng);
-        guards.push(ng); 
-        
-        store.set('vitoria_guards', savedGuards);
-        renderGuardsTable();
-        e.target.reset();
-        toast("Porteiro cadastrado!");
-    });
-}
-
-window.removerPorteiro = (id) => {
-    if (activeGuardId !== 'admin') return toast("Ação negada!");
-    if (id === 'admin') return toast("Não é possível remover o administrador!");
-
-    if (confirm(`Deseja remover o porteiro ${id} permanentemente?`)) {
-        savedGuards = savedGuards.filter(g => g.id !== id);
-        store.set('vitoria_guards', savedGuards);
-        guards = guards.filter(g => g.id !== id);
-        renderGuardsTable();
-        toast("Porteiro removido.");
-    }
-};
 
 function renderGuardsTable() {
     const tbody = $('#guardsTable');
     if (!tbody) return;
     tbody.innerHTML = '';
-    
     guards.forEach(g => {
         const isMe = g.id === activeGuardId;
-        let btnHTML = '';
-        
-        if (activeGuardId === 'admin') {
-            if (g.id !== 'admin') {
-                btnHTML = `<button class="btn" style="border:1px solid #e74c3c; color:#e74c3c; padding:4px 10px; cursor:pointer; background:none; border-radius:4px; width:auto;" 
-                            onclick="removerPorteiro('${g.id}')">Remover</button>`;
-            } else {
-                btnHTML = `<small style="color:#888">Admin Principal</small>`;
-            }
-        } else {
-            btnHTML = `<span style="color:#2ecc71">● Ativo</span>`;
-        }
-
-        tbody.innerHTML += `
-            <tr>
-                <td style="${isMe ? 'color:#d4af37; font-weight:bold' : ''}">${g.name} ${isMe ? '(Você)' : ''}</td>
-                <td>${g.id}</td>
-                <td>Ativo</td>
-                <td>${btnHTML}</td>
-            </tr>`;
+        tbody.innerHTML += `<tr><td>${g.name} ${isMe ? '(Você)' : ''}</td><td>${g.id}</td><td>Ativo</td><td>${isMe ? '●' : ''}</td></tr>`;
     });
 }
 
 // --- INICIALIZAÇÃO ---
 document.addEventListener('DOMContentLoaded', () => {
     initTabs();
+    setupAutocomplete();
+    
     if ($('#btnLogout')) $('#btnLogout').addEventListener('click', () => {
-        localStorage.removeItem('vitoria_logado');
-        localStorage.removeItem('vitoria_active_guard');
+        localStorage.clear();
         window.location.href = "login.html";
     });
     if ($('#btnFilter')) $('#btnFilter').addEventListener('click', filtrarAuditoria);
     if ($('#btnExport')) $('#btnExport').addEventListener('click', imprimirRelatorio);
-    if ($('#btnClearRecords')) $('#btnClearRecords').addEventListener('click', () => {
-        if(confirm("Apagar todos os registros do banco de dados?")) { 
-            localStorage.removeItem('vitoria_records'); 
-            records = [];
-            renderRecent();
-            toast("Banco de dados limpo!");
-        }
-    });
 
     renderServiceSelect();
     renderRecent();
